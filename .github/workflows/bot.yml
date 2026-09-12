@@ -1,0 +1,42 @@
+name: Minecraft 26.2 Bot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install "https://github.com/Complexity-ML/mineflayer-26.2/releases/download/complexity-26.2.3/mineflayer-complexity-26.2.3.tgz"
+
+      - name: Show versions
+        run: |
+          node --version
+          npm --version
+          npm list mineflayer
+
+      - name: Start Mineflayer
+        env:
+          MC_HOST: ${{ secrets.MC_HOST }}
+          MC_PORT: ${{ secrets.MC_PORT }}
+          MC_USERNAME: ${{ secrets.MC_USERNAME }}
+          MC_AUTH: ${{ secrets.MC_AUTH }}
+        run: |
+          node index.js
