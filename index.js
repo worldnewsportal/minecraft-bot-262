@@ -3,9 +3,15 @@ const mineflayer = require('mineflayer')
 const host = process.env.MC_HOST
 const port = Number(process.env.MC_PORT || 25565)
 const username = process.env.MC_USERNAME
+const auth = process.env.MC_AUTH || 'offline'
 
-if (!host || !username) {
-  console.error('Missing MC_HOST or MC_USERNAME')
+if (!host) {
+  console.error('MC_HOST is missing')
+  process.exit(1)
+}
+
+if (!username) {
+  console.error('MC_USERNAME is missing')
   process.exit(1)
 }
 
@@ -19,30 +25,28 @@ function startBot() {
     host,
     port,
     username,
-    auth: process.env.MC_AUTH || 'offline',
+    auth,
     version: '26.2'
   })
 
   bot.once('spawn', () => {
-    console.log('================================')
-    console.log('Bot connected to Minecraft 26.2')
-    console.log('Username:', bot.username)
-    console.log('Position:', bot.entity.position)
-    console.log('================================')
+    console.log('Bot connected successfully')
+    console.log(`Minecraft version: ${bot.version}`)
+    console.log(`Username: ${bot.username}`)
   })
 
-  bot.on('kicked', reason => {
+  bot.on('kicked', (reason) => {
     console.log('Bot kicked:')
     console.log(reason)
   })
 
-  bot.on('error', error => {
-    console.error('Mineflayer error:')
+  bot.on('error', (error) => {
+    console.error('Bot error:')
     console.error(error)
   })
 
   bot.on('end', () => {
-    console.log('Connection closed')
+    console.log('Connection ended')
 
     if (!stopping) {
       console.log('Reconnecting in 30 seconds...')
@@ -54,26 +58,18 @@ function startBot() {
   })
 }
 
-process.on('SIGTERM', () => {
+function shutdown() {
   stopping = true
 
   if (reconnectTimer) {
     clearTimeout(reconnectTimer)
   }
 
-  console.log('Stopping bot...')
+  console.log('Shutting down...')
   process.exit(0)
-})
+}
 
-process.on('SIGINT', () => {
-  stopping = true
-
-  if (reconnectTimer) {
-    clearTimeout(reconnectTimer)
-  }
-
-  console.log('Stopping bot...')
-  process.exit(0)
-})
+process.on('SIGINT', shutdown)
+process.on('SIGTERM', shutdown)
 
 startBot()
