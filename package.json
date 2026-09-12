@@ -1,0 +1,10 @@
+{
+  "name": "minecraft-bot-262",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minecraft Java 26.2 Mineflayer bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
